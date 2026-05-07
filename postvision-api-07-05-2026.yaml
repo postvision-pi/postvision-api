@@ -1,0 +1,569 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Postvision
+meta:
+  id: wrk_323091f1b1dc4dd3b76e61fb179a43ec
+  created: 1743303651199
+  modified: 1773892616276
+  description: ""
+collection:
+  - name: Users
+    meta:
+      id: fld_5830b61d7089439e814c6806fabb68ce
+      created: 1773892626074
+      modified: 1773942183404
+      sortKey: -1773892626074
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/user/"
+        name: Create User
+        meta:
+          id: req_8cf4eb8aeaee49e9911b1aa85803c40b
+          created: 1773892629048
+          modified: 1776177339478
+          isPrivate: false
+          description: ""
+          sortKey: -1773894471335
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "firstName": "Renan",
+              "lastName": "Zanetti Oliveira",
+              "email": "a@bb",
+              "password": "123",
+              "birthDate": "2024-04-03",
+              "cpf": "49648076812",
+              "gender": "Masculino",
+              "phone": "13996054131"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/auth"
+        name: Login User
+        meta:
+          id: req_947a14c432904269b49d82f62d9047cd
+          created: 1773931516367
+          modified: 1776177345736
+          isPrivate: false
+          description: ""
+          sortKey: -1773894471235
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email" : "a@b",
+            	"password" : "123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/user/a@b"
+        name: Get One User
+        meta:
+          id: req_9b6976a048ba48eb816e75ea627d4c79
+          created: 1773942062622
+          modified: 1776177334291
+          isPrivate: false
+          description: ""
+          sortKey: -1773942062622
+        method: GET
+        body:
+          mimeType: application/json
+          text: ""
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/user/69bc1719b04e08d1baa0e99d"
+        name: Update User
+        meta:
+          id: req_1e0e894c45404bd79a09fae2831bb4c4
+          created: 1773942184672
+          modified: 1776177327320
+          isPrivate: false
+          description: ""
+          sortKey: -1773942184672
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "firstName": "Renan",
+              "lastName": "Zanetti Oliveira",
+              "email": "a@b",
+              "birthDate": "2024-04-03",
+              "cpf": "49648076812",
+              "gender": "Masculino",
+              "phone": "13996054131"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/user/69bc3c8a56284c517547f2fc"
+        name: Delete User
+        meta:
+          id: req_d1ca721087dc46d6b7ace93600c629cd
+          created: 1773942419043
+          modified: 1776177312406
+          isPrivate: false
+          description: ""
+          sortKey: -1773942419043
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Exercices
+    meta:
+      id: fld_f4e48dd2592b450bab3acb439e7d2a14
+      created: 1773939064577
+      modified: 1773939081238
+      sortKey: -1773939064577
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/exercice/"
+        name: Create Exercice
+        meta:
+          id: req_9e118922fcb042b4ab311bd983e11e77
+          created: 1773939078821
+          modified: 1776177305669
+          isPrivate: false
+          description: ""
+          sortKey: -1773939078821
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            	"name" : "Agachamento",
+            	"description": "Um exercicio feito para estimular os musculos inferiores",
+            	"videoUrl" : "youtube.com",
+            	"muscleGroup" : "Inferiores, Abdomen"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/exercice"
+        name: Get All Exercices
+        meta:
+          id: req_4ab34e8278cc4ccdbd59311493149323
+          created: 1773948667828
+          modified: 1776177299946
+          isPrivate: false
+          description: ""
+          sortKey: -1773948667828
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/exercice/69bc4d9b627af0d76263c92b"
+        name: Delete Exercice
+        meta:
+          id: req_5afa30512ab0451f9a0f20f1bcf5bf88
+          created: 1773950014582
+          modified: 1776177294530
+          isPrivate: false
+          description: ""
+          sortKey: -1773950014582
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/exercice/69bc546f821571e0c90bc572"
+        name: Update Exercice
+        meta:
+          id: req_deb5c0523b4a4270975f6829464c116f
+          created: 1773960692717
+          modified: 1776177286928
+          isPrivate: false
+          description: ""
+          sortKey: -1773960692717
+        method: PUT
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            	"name" : "Agachamento",
+            	"description": "Um exercicio feito para estimular os musculos inferiores",
+            	"videoUrl" : "youtube.com",
+            	"muscleGroup" : "Inferiores, Abdomen"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Sessions
+    meta:
+      id: fld_5111edeced2b4e2d932d6129bbe9606b
+      created: 1773965516245
+      modified: 1773965534478
+      sortKey: -1773965516245
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/session"
+        name: Create Session
+        meta:
+          id: req_606f3ca131234635b51d0f00308f9caa
+          created: 1773965536869
+          modified: 1776177278890
+          isPrivate: false
+          description: ""
+          sortKey: -1773965536869
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "userId": "69d27e92d84a4fce84e795a0",
+              "exerciseId": "69bc546f821571e0c90bc572",
+              "date": "2026-04-14T19:20:00.000Z",
+              "durationInSeconds": 312,
+              "report": {
+                "correctReps": 20,
+                "incorrectReps": 5,
+                "averageAccuracy": 80,
+                "comment": {
+                  "text": "Knee projecting too far forward."
+                }
+              },
+              "landmarksPath": "uploads/landmarks/landmark001.json"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/session/{{ _.USER_ID }}"
+        name: Get Sessions By User ID
+        meta:
+          id: req_6b5592e4e5e94f91b45aafd34dcdcec8
+          created: 1773966847682
+          modified: 1776177433560
+          isPrivate: false
+          description: ""
+          sortKey: -1773966847682
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/session/stats/{{ _.USER_ID }}"
+        name: Get Sessions Stats By User ID
+        meta:
+          id: req_2ed45b301b184fbb9cda99134b549562
+          created: 1775586622582
+          modified: 1776177440132
+          isPrivate: false
+          description: ""
+          sortKey: -1773966192275.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Notifications
+    meta:
+      id: fld_2d20bbb298e04138a2e0f3f28bc19351
+      created: 1776171914249
+      modified: 1776171914249
+      sortKey: -1776171914249
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/notifications/"
+        name: Create Notification
+        meta:
+          id: req_3baa5208f8d64fbcb5a9e4e2645d7e99
+          created: 1776171933224
+          modified: 1776185209729
+          isPrivate: false
+          description: ""
+          sortKey: -1776171933224
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "userId": "69d27e92d84a4fce84e795a0",
+              "type": "feedback",
+              "title": "Parabens pelas ultimas sessoes!",
+              "message": "Voce tem ido muito bem nas ultimas sessões",
+              "data": {
+              }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.5.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/notifications/{{ _.USER_ID }}"
+        name: Get Notifications By User ID
+        meta:
+          id: req_68890d7a959c4764b6e55746bc180c92
+          created: 1776174984860
+          modified: 1776177386053
+          isPrivate: false
+          description: ""
+          sortKey: -1776174984860
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.5.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/notifications/unread/{{ _.USER_ID }}"
+        name: Get Non Read Notifications By User ID
+        meta:
+          id: req_25fa0f38cdd644b6a91e5946e5706e94
+          created: 1776176160130
+          modified: 1776177399914
+          isPrivate: false
+          description: ""
+          sortKey: -1776176160130
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.5.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/notifications/69de4d00ce5eefec9011cb8b/read"
+        name: Mark One Notification As Read
+        meta:
+          id: req_3d8137479d3a429289c3c1137ac0e06e
+          created: 1776176508426
+          modified: 1776177240460
+          isPrivate: false
+          description: ""
+          sortKey: -1776176508426
+        method: PUT
+        headers:
+          - name: User-Agent
+            value: insomnia/12.5.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/notifications/read/all/{{ _.USER_ID }}"
+        name: Mark All Notifications As Read
+        meta:
+          id: req_1d3de91b7c0e46558e1931282df0099e
+          created: 1776176584892
+          modified: 1776177537486
+          isPrivate: false
+          description: ""
+          sortKey: -1776176584892
+        method: PUT
+        headers:
+          - name: User-Agent
+            value: insomnia/12.5.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/notifications/69de4d00ce5eefec9011cb8b"
+        name: Delete Notification
+        meta:
+          id: req_cfb3220e895e43ef80f3381d36162918
+          created: 1776176636060
+          modified: 1776177190121
+          isPrivate: false
+          description: ""
+          sortKey: -1776176636060
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.5.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_af0ee1f8e87c02a78410850ecb0a486e96f1a075
+    created: 1773892593884
+    modified: 1773892593884
+environments:
+  name: Base Environment
+  meta:
+    id: env_af0ee1f8e87c02a78410850ecb0a486e96f1a075
+    created: 1743303651206
+    modified: 1776177177687
+    isPrivate: false
+  data:
+    BASE_URL: http://localhost:4000
+    USER_ID: 69d27e92d84a4fce84e795a0
