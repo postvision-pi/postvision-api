@@ -8,7 +8,13 @@ const userSchema = new mongoose.Schema({
     birthDate: { type: String, required: true },
     cpf: { type: String, required: true, unique: true },
     gender: { type: String, enum: ['Masculino', 'Feminino', 'Outro'] },
-    phone: { type: String, required: true }
+    phone: { type: String, required: true },
+
+    profileImage: {
+        type: String,
+        default: null
+    }
+
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);

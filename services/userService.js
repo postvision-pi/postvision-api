@@ -1,5 +1,8 @@
 import User from '../models/Users.js';
 import bcrypt from 'bcryptjs';
+import FormData from 'form-data';
+import axios from 'axios';
+import dotenv from 'dotenv/config';
 
 class UserService {
     async createUser(firstName, lastName, email, password, birthDate, cpf, gender, phone) {
@@ -50,7 +53,100 @@ class UserService {
             throw new Error('Erro ao buscar usuário');
         }
     }
+
     
+
+async uploadProfileImage(userId, file) {
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new Error('Usuário não encontrado');
+        }
+
+        const form = new FormData();
+
+        form.append('type', 'profile');
+        form.append('userId', userId);
+        form.append(
+            'file',
+            file.buffer,
+            {
+                filename: file.originalname,
+                contentType: file.mimetype
+            }
+        );
+
+        const response = await axios.post(
+            `${process.env.FILES_API_URL}/internal/upload`,
+            form,
+            {
+                headers: {
+                    ...form.getHeaders(),
+                    'X-Internal-API-Key': process.env.FILES_API_KEY
+                },
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
+            }
+        );
+
+
+// Salva apenas o caminho lógico da imagem.
+// O caminho físico do arquivo fica exclusivamente no PostVision Files.
+const profileImage = `/user/profile/${userId}`;
+
+await User.findByIdAndUpdate(userId, {
+    profileImage
+});
+
+return {
+    profileImage
+};
+
+    } catch (err) {
+        console.log(
+            'Erro ao enviar imagem para postvision-files:',
+            err.response?.data || err.message
+        );
+
+        throw new Error('Erro ao enviar imagem de perfil');
+    }
+}
+
+async getProfileImage(userId) {
+    try {
+        // Busca a imagem diretamente no PostVision Files.
+        // A API de arquivos retorna os bytes da imagem.
+        const response = await axios.get(
+            `${process.env.FILES_API_URL}/internal/profile/${userId}`,
+            {
+                responseType: 'arraybuffer'
+            }
+        );
+
+        // Retorna os dados da imagem e o tipo MIME
+        // para que o controller possa repassar a imagem ao cliente.
+        return {
+            data: response.data,
+            contentType: response.headers['content-type']
+        };
+
+    } catch (err) {
+        // Se o PostVision Files não encontrou a imagem,
+        // transformamos o erro em uma mensagem que o controller entende.
+        if (err.response?.status === 404) {
+            throw new Error('Foto de perfil não encontrada');
+        }
+
+        console.log(
+            'Erro ao buscar imagem no postvision-files:',
+            err.response?.data || err.message
+        );
+
+        throw new Error('Erro ao buscar imagem de perfil');
+    }
+}
+
     async Update(id, firstName, lastName, email, password, birthDate, cpf, gender, phone) {
         try {
             await User.findByIdAndUpdate(id, {

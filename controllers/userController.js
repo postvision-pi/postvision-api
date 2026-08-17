@@ -128,4 +128,66 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export default { createUser, loginUser, getOne, updateUser, deleteUser };
+
+const uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                error: 'Imagem de perfil não fornecida'
+            });
+        }
+
+        const userId = req.userId;
+
+        const result = await userService.uploadProfileImage(
+            userId,
+            req.file
+        );
+
+        res.status(200).json({
+            message: 'Foto de perfil atualizada com sucesso!',
+            profileImage: result.profileImage
+        });
+
+    } catch (err) {
+        console.log('Erro ao enviar foto de perfil: ', err);
+
+        res.status(500).json({
+            error: 'Erro interno no servidor'
+        });
+    }
+};
+
+const getProfileImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const image = await userService.getProfileImage(id);
+
+        res.set('Content-Type', image.contentType);
+        res.send(image.data);
+
+    } catch (err) {
+        console.log('Erro ao buscar foto de perfil: ', err);
+
+        if (err.message === 'Foto de perfil não encontrada') {
+            return res.status(404).json({
+                error: err.message
+            });
+        }
+
+        res.status(500).json({
+            error: 'Erro interno no servidor'
+        });
+    }
+};
+
+export default {
+    createUser,
+    loginUser,
+    getOne,
+    updateUser,
+    deleteUser,
+    uploadProfileImage,
+    getProfileImage
+};
