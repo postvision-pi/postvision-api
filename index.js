@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import dns from 'dns';
 import cors from 'cors';
 
 import userRouter from './routes/userRoutes.js';
@@ -9,6 +10,7 @@ import sessionRouter from './routes/sessionRoutes.js';
 import notificationRouter from './routes/notificationRoutes.js';
 
 dotenv.config();
+dns.setServers(['1.1.1.1', '1.0.0.1']);
 
 const app = express();
 
