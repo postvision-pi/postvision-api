@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import dns from 'dns';
 import cors from 'cors';
+import helmet from 'helmet';
 
 import userRouter from './routes/userRoutes.js';
 import exerciceRouter from './routes/exerciceRoutes.js';
@@ -13,6 +14,9 @@ dotenv.config();
 dns.setServers(['1.1.1.1', '1.0.0.1']);
 
 const app = express();
+
+// Cabeçalhos de segurança padrão (X-Content-Type-Options, HSTS, etc.)
+app.use(helmet());
 
 // Permite requisições do front-end (ajuste a origin em produção)
 app.use(cors({

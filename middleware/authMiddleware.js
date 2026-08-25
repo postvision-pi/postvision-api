@@ -16,16 +16,20 @@ const authMiddleware = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
+    if (!token) {
+        return res.status(401).json({ error: 'Token não fornecido' });
+    }
+
     try {
         const decoded = jwt.verify(token, secret);
 
-        // DEBUG TEMPORÁRIO
-        console.log('JWT decodificado:', decoded);
+        const userId = decoded.id_usuario?.toString() || decoded.id?.toString();
 
-        req.userId = decoded.id_usuario?.toString() || decoded.id?.toString();
+        if (!userId) {
+            return res.status(401).json({ error: 'Token inválido ou expirado' });
+        }
 
-        // DEBUG TEMPORÁRIO
-        console.log('User ID identificado:', req.userId);
+        req.userId = userId;
 
         next();
     } catch (err) {

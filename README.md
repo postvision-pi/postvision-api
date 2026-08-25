@@ -18,6 +18,7 @@ API REST para a plataforma PostVision — um sistema de acompanhamento de exerc�
   - [Notificações](#notificações)
 - [Modelos de Dados](#modelos-de-dados)
 - [Estatísticas](#estatísticas)
+- [Coleção do Insomnia](#coleção-do-insomnia)
 
 ---
 
@@ -86,7 +87,13 @@ Authorization: Bearer <seu_token>
 
 O middleware de autenticação extrai o `userId` do token e o disponibiliza em `req.userId`.
 
-> **Atenção:** atualmente as rotas de exercício, sessão e notificação **não aplicam o middleware de autenticação** por padrão. Adicione `authMiddleware` nas rotas que precisarem de proteção.
+Além de exigir o token, a maioria das rotas também checa se **quem está autenticado é o dono do recurso**:
+- `PUT /user/:id` e `DELETE /user/:id` só funcionam se o `:id` da URL for igual ao id do token.
+- `GET /session/:userId`, `GET /session/stats/:userId`, `GET /notifications/:userId`, `GET /notifications/unread/:userId` e `PUT /notifications/read/all/:userId` só funcionam se o `:userId` da URL for igual ao id do token.
+- `PUT /notifications/:id/read` e `DELETE /notifications/:id` verificam se a notificação pertence ao usuário do token antes de alterar/apagar.
+- `POST /session/` e `POST /notifications/` não recebem mais `userId` no corpo — o recurso é sempre criado para o dono do token.
+
+> Rotas de criação de exercício, sessão e notificação exigem login (`authMiddleware`). A listagem de exercícios (`GET /exercice`) continua pública, assim como `POST /user`, `POST /auth` e a imagem de perfil (`GET /user/profile/:id`).
 
 ---
 
@@ -97,10 +104,10 @@ O middleware de autenticação extrai o `userId` do token e o disponibiliza em `
 | Método | Rota             | Descrição                        | Auth |
 |--------|------------------|----------------------------------|------|
 | POST   | `/user`          | Cria um novo usuário             | ❌   |
-| POST   | `/auth`          | Realiza login e retorna token JWT | ❌   |
-| GET    | `/user/:email`   | Busca um usuário pelo e-mail     | ❌   |
-| PUT    | `/user/:id`      | Atualiza dados de um usuário     | ❌   |
-| DELETE | `/user/:id`      | Remove um usuário                | ❌   |
+| POST   | `/auth`          | Realiza login e retorna token JWT (10 tentativas / 15 min por IP) | ❌   |
+| GET    | `/user/:email`   | Busca um usuário pelo e-mail     | ✅   |
+| PUT    | `/user/:id`      | Atualiza dados de um usuário (só o próprio) | ✅   |
+| DELETE | `/user/:id`      | Remove um usuário (só o próprio) | ✅   |
 
 ---
 
@@ -121,6 +128,7 @@ O middleware de autenticação extrai o `userId` do token e o disponibiliza em `
 ```
 
 > `gender` aceita apenas: `"Masculino"`, `"Feminino"` ou `"Outro"`.
+> `cpf` precisa ser um CPF válido (dígitos verificadores conferidos no servidor) e ainda não cadastrado.
 
 **Resposta `201`:**
 ```json
@@ -139,9 +147,12 @@ O middleware de autenticação extrai o `userId` do token e o disponibiliza em `
 }
 ```
 
-**Erro `400`** (e-mail ou CPF já cadastrado):
+**Erro `400`** (e-mail/telefone/CPF já cadastrado ou CPF inválido):
 ```json
-{ "error": "E-mail já cadastrado" }
+{ "error": "O e-mail já está cadastrado! Faça login." }
+```
+```json
+{ "error": "CPF inválido." }
 ```
 
 ---
@@ -171,31 +182,63 @@ O middleware de autenticação extrai o `userId` do token e o disponibiliza em `
 
 ---
 
-#### `GET /user/:email` — Buscar usuário
+#### `GET /user/:email` — Buscar usuário 🔒
 
-Retorna os dados do usuário com o e-mail informado.
+Retorna os dados do usuário com o e-mail informado (sem o hash de senha). Requer `Authorization: Bearer <token>`.
 
-**Resposta `200`:** objeto do usuário  
+**Resposta `200`:** objeto do usuário (sem `password`)
+**Erro `401`:** token ausente/inválido
 **Erro `404`:** `{ "error": "Usuário não encontrado" }`
 
 ---
 
-#### `PUT /user/:id` — Atualizar usuário
+#### `PUT /user/:id` — Atualizar usuário 🔒
 
-**Body (JSON):** mesmos campos do `POST /user` (todos opcionais).
+Requer `Authorization: Bearer <token>`. **O `:id` da URL precisa ser igual ao id do usuário logado** — só é possível atualizar a própria conta.
+
+**Body (JSON):** mesmos campos do `POST /user`, **todos opcionais** — só os campos enviados são alterados (payload parcial). Se `password` for enviado, é re-hasheado antes de salvar; se `cpf`, `email` ou `phone` forem enviados, são validados/checados contra duplicidade em outras contas.
 
 **Resposta `200`:**
 ```json
-{ "message": "Usuário atualizado com sucesso!" }
+{
+  "message": "Usuário atualizado com sucesso!",
+  "usuario": {
+    "id_usuario": "664abc...",
+    "nome_usuario": "João",
+    "sobrenome_usuario": "Silva",
+    "email_usuario": "joao@email.com",
+    "data_nascimento_usuario": "1995-04-20",
+    "cpf_usuario": "12345678900",
+    "genero_usuario": "Masculino",
+    "telefone_usuario": "11999999999"
+  }
+}
+```
+
+**Erro `400`** (CPF/e-mail/telefone inválido ou já usado por outra conta):
+```json
+{ "error": "CPF inválido." }
+```
+
+**Erro `403`** (tentando alterar outro usuário):
+```json
+{ "error": "Você não tem permissão para alterar este usuário." }
 ```
 
 ---
 
-#### `DELETE /user/:id` — Deletar usuário
+#### `DELETE /user/:id` — Deletar usuário 🔒
+
+Requer `Authorization: Bearer <token>`. **O `:id` da URL precisa ser igual ao id do usuário logado.**
 
 **Resposta `200`:**
 ```json
 { "message": "Usuário deletado com sucesso!" }
+```
+
+**Erro `403`:**
+```json
+{ "error": "Você não tem permissão para apagar este usuário." }
 ```
 
 ---
@@ -204,14 +247,18 @@ Retorna os dados do usuário com o e-mail informado.
 
 | Método | Rota              | Descrição                     | Auth |
 |--------|-------------------|-------------------------------|------|
-| POST   | `/exercice`       | Cria um exercício             | ❌   |
+| POST   | `/exercice`       | Cria um exercício             | ✅   |
 | GET    | `/exercice`       | Lista todos os exercícios     | ❌   |
-| PUT    | `/exercice/:id`   | Atualiza um exercício         | ❌   |
-| DELETE | `/exercice/:id`   | Remove um exercício           | ❌   |
+| PUT    | `/exercice/:id`   | Atualiza um exercício         | ✅   |
+| DELETE | `/exercice/:id`   | Remove um exercício           | ✅   |
+
+> Requer apenas estar logado (qualquer usuário autenticado pode gerenciar exercícios — não existe ainda um papel de "admin"; considere adicionar um campo `role` ao `User` se quiser restringir isso).
 
 ---
 
-#### `POST /exercice` — Criar exercício
+#### `POST /exercice` — Criar exercício 🔒
+
+Requer `Authorization: Bearer <token>`.
 
 **Body (JSON):**
 ```json
@@ -236,7 +283,9 @@ Retorna os dados do usuário com o e-mail informado.
 
 ---
 
-#### `PUT /exercice/:id` — Atualizar exercício
+#### `PUT /exercice/:id` — Atualizar exercício 🔒
+
+Requer `Authorization: Bearer <token>`.
 
 **Body (JSON):** mesmos campos do `POST /exercice`.
 
@@ -247,7 +296,9 @@ Retorna os dados do usuário com o e-mail informado.
 
 ---
 
-#### `DELETE /exercice/:id` — Deletar exercício
+#### `DELETE /exercice/:id` — Deletar exercício 🔒
+
+Requer `Authorization: Bearer <token>`.
 
 **Resposta `200`:**
 ```json
@@ -260,18 +311,21 @@ Retorna os dados do usuário com o e-mail informado.
 
 | Método | Rota                        | Descrição                                    | Auth |
 |--------|-----------------------------|----------------------------------------------|------|
-| POST   | `/session/`                 | Registra uma sessão de treino                | ❌   |
-| GET    | `/session/:userId`          | Busca todas as sessões de um usuário         | ❌   |
-| GET    | `/session/stats/:userId`    | Retorna estatísticas calculadas do usuário   | ❌   |
+| POST   | `/session/`                 | Registra uma sessão de treino                | ✅   |
+| GET    | `/session/:userId`          | Busca todas as sessões de um usuário         | ✅   |
+| GET    | `/session/stats/:userId`    | Retorna estatísticas calculadas do usuário   | ✅   |
+
+> ⚠️ Se algum serviço externo (ex: um app de câmera/análise de postura) cria sessões chamando `POST /session/` sem um login de usuário, essa exigência de token vai quebrar essa integração — nesse caso, o certo é trocar por uma chave de API interna (no mesmo padrão do `FILES_API_KEY` usado para o PostVision Files) em vez de JWT de usuário.
 
 ---
 
-#### `POST /session/` — Criar sessão
+#### `POST /session/` — Criar sessão 🔒
+
+Requer `Authorization: Bearer <token>`. A sessão é sempre criada para o usuário dono do token — **não envie mais `userId` no corpo**, ele é ignorado.
 
 **Body (JSON):**
 ```json
 {
-  "userId": "664abc...",
   "exerciseId": "664def...",
   "date": "2026-05-07T10:00:00.000Z",
   "durationInSeconds": 300,
@@ -294,15 +348,18 @@ Retorna os dados do usuário com o e-mail informado.
 
 ---
 
-#### `GET /session/:userId` — Listar sessões do usuário
+#### `GET /session/:userId` — Listar sessões do usuário 🔒
+
+Requer `Authorization: Bearer <token>`. **O `:userId` da URL precisa ser igual ao id do usuário logado.**
 
 **Resposta `200`:** array com todas as sessões do usuário.
+**Erro `403`:** `{ "error": "Você não tem permissão para ver essas sessões." }`
 
 ---
 
-#### `GET /session/stats/:userId` — Estatísticas do usuário
+#### `GET /session/stats/:userId` — Estatísticas do usuário 🔒
 
-Retorna métricas calculadas a partir de todas as sessões do usuário.
+Requer `Authorization: Bearer <token>`. **O `:userId` da URL precisa ser igual ao id do usuário logado.** Retorna métricas calculadas a partir de todas as sessões do usuário.
 
 **Resposta `200`:**
 ```json
@@ -341,23 +398,25 @@ Retorna métricas calculadas a partir de todas as sessões do usuário.
 
 | Método | Rota                                  | Descrição                            | Auth |
 |--------|---------------------------------------|--------------------------------------|------|
-| POST   | `/notifications/`                     | Cria uma notificação                 | ❌   |
-| GET    | `/notifications/:userId`              | Busca todas as notificações          | ❌   |
-| GET    | `/notifications/unread/:userId`       | Busca notificações não lidas         | ❌   |
-| PUT    | `/notifications/:id/read`             | Marca uma notificação como lida      | ❌   |
-| PUT    | `/notifications/read/all/:userId`     | Marca todas como lidas               | ❌   |
-| DELETE | `/notifications/:id`                  | Remove uma notificação               | ❌   |
+| POST   | `/notifications/`                     | Cria uma notificação                 | ✅   |
+| GET    | `/notifications/:userId`              | Busca todas as notificações          | ✅   |
+| GET    | `/notifications/unread/:userId`       | Busca notificações não lidas         | ✅   |
+| PUT    | `/notifications/:id/read`             | Marca uma notificação como lida      | ✅   |
+| PUT    | `/notifications/read/all/:userId`     | Marca todas como lidas               | ✅   |
+| DELETE | `/notifications/:id`                  | Remove uma notificação               | ✅   |
 
 > As notificações expiram automaticamente **30 dias** após a criação (TTL index no MongoDB).
+> ⚠️ Se um serviço do sistema (cron de lembrete, `streak_warning` automático, etc.) precisa criar notificações para outros usuários sem login, `POST /notifications/` vai precisar de uma chave de API interna em vez de JWT de usuário — hoje essa rota só cria notificações para o próprio dono do token.
 
 ---
 
-#### `POST /notifications/` — Criar notificação
+#### `POST /notifications/` — Criar notificação 🔒
+
+Requer `Authorization: Bearer <token>`. A notificação é sempre criada para o usuário dono do token — **não envie mais `userId` no corpo**, ele é ignorado.
 
 **Body (JSON):**
 ```json
 {
-  "userId": "664abc...",
   "type": "reminder",
   "title": "Hora de treinar!",
   "message": "Você não treina há 2 dias. Que tal uma sessão hoje?",
@@ -371,25 +430,34 @@ Retorna métricas calculadas a partir de todas as sessões do usuário.
 
 ---
 
-#### `GET /notifications/:userId` — Listar todas as notificações
+#### `GET /notifications/:userId` — Listar todas as notificações 🔒
+
+Requer `Authorization: Bearer <token>`. **O `:userId` da URL precisa ser igual ao id do usuário logado.**
 
 **Resposta `200`:** array de notificações do usuário, ordenadas pela mais recente.
 
 ---
 
-#### `GET /notifications/unread/:userId` — Notificações não lidas
+#### `GET /notifications/unread/:userId` — Notificações não lidas 🔒
+
+Requer `Authorization: Bearer <token>`. **O `:userId` da URL precisa ser igual ao id do usuário logado.**
 
 **Resposta `200`:** array com notificações onde `read: false`.
 
 ---
 
-#### `PUT /notifications/:id/read` — Marcar uma como lida
+#### `PUT /notifications/:id/read` — Marcar uma como lida 🔒
+
+Requer `Authorization: Bearer <token>`. Só marca como lida se a notificação pertencer ao usuário do token.
 
 **Resposta `200`:** objeto da notificação atualizada.
+**Erro `403`:** `{ "error": "Você não tem permissão para alterar esta notificação." }`
 
 ---
 
-#### `PUT /notifications/read/all/:userId` — Marcar todas como lidas
+#### `PUT /notifications/read/all/:userId` — Marcar todas como lidas 🔒
+
+Requer `Authorization: Bearer <token>`. **O `:userId` da URL precisa ser igual ao id do usuário logado.**
 
 **Resposta `200`:**
 ```json
@@ -398,7 +466,9 @@ Retorna métricas calculadas a partir de todas as sessões do usuário.
 
 ---
 
-#### `DELETE /notifications/:id` — Deletar notificação
+#### `DELETE /notifications/:id` — Deletar notificação 🔒
+
+Requer `Authorization: Bearer <token>`. Só apaga se a notificação pertencer ao usuário do token.
 
 **Resposta `200`:**
 ```json
@@ -467,3 +537,18 @@ As estatísticas retornadas em `GET /session/stats/:userId` são calculadas no s
 - **Monthly:** soma total de repetições corretas agrupadas por dia, em ordem cronológica.
 - **Last Session:** retorna data, repetições e precisão da sessão mais recente.
 - **Averages:** média de duração (em segundos) e precisão (%) entre todas as sessões.
+
+---
+
+## Coleção do Insomnia
+
+O arquivo [`postvision-api-07-05-2026.yaml`](./postvision-api-07-05-2026.yaml) é uma exportação de coleção do Insomnia (v5) com todas as rotas já configuradas.
+
+**Como usar:**
+1. No Insomnia, vá em `Application → Preferences → Data → Import Data` (ou arraste o arquivo pra dentro do Insomnia) e selecione o `.yaml`.
+2. Confira o `Base Environment`: `BASE_URL` já aponta pra `http://localhost:4000`, ajuste se sua API rodar em outra porta/URL.
+3. Rode a requisição **Login User** (pasta *Users*) com um e-mail/senha válidos.
+4. Copie o campo `token` da resposta e cole na variável de ambiente `TOKEN`.
+5. Todas as rotas protegidas (marcadas com 🔒 nas seções acima) já vêm com o header `Authorization: Bearer {{ _.TOKEN }}` configurado — elas vão usar automaticamente o token que você colou no passo 4.
+
+> As requisições de sessão/notificação que usam `:userId` na URL (ex: *Get Sessions By User ID*) usam a variável `USER_ID` do ambiente — atualize-a com o `id_usuario` do usuário logado (deve ser o mesmo dono do `TOKEN`, já que as rotas agora checam isso no servidor).

@@ -10,6 +10,10 @@ const Create = async (userId, type, title, message, data = {}) => {
     });
 };
 
+const GetById = async (notificationId) => {
+    return await Notification.findById(notificationId);
+};
+
 const GetByUserId = async (userId) => {
     return await Notification
         .find({ userId })
@@ -43,6 +47,7 @@ const Delete = async (notificationId) => {
 
 export default {
     Create,
+    GetById,
     GetByUserId,
     GetUnreadByUserId,
     MarkAsRead,
