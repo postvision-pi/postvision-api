@@ -640,3 +640,58 @@ o container, e a checagem de saúde consulta `/health`.
 
 A API é JavaScript: seu build é a imagem Docker, sem etapa artificial de compilação.
 A próxima seção explica a execução junto do MongoDB com Compose.
+
+## Executar API e MongoDB com Compose
+
+Requer Docker Compose v2 ou superior, com suporte a `--wait` (Docker Desktop atualizado).
+
+```bash
+cp .env.example .env
+# PowerShell: Copy-Item .env.example .env
+# Defina JWT_SECRET no .env. Para gerar um segredo:
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+
+docker compose config --quiet
+docker compose up --build -d --wait
+docker compose run --rm seed
+```
+
+Abra `http://localhost:4000/health`: deve retornar HTTP 200 e banco conectado.
+No PowerShell, pode usar `Invoke-RestMethod http://localhost:4000/health`.
+O seed é um serviço opcional: só roda quando chamado explicitamente, e não em toda
+inicialização. Pode repetir `docker compose run --rm seed` para conferir zero inserções.
+Para acompanhar a aplicação:
+
+```bash
+docker compose ps
+docker compose logs -f api
+docker compose down
+```
+
+`down` preserva o volume `mongo_data`; os exemplos continuam lá ao subir novamente.
+`docker compose down -v` apaga o banco de demonstração, incluindo dados criados manualmente.
+
+- A API usa `mongodb://mongo:27017/postvision_demo` na rede interna. O Compose fixa
+  essa URI e não reutiliza a URI do Atlas definida no `.env`.
+- Para ferramentas instaladas no computador, o banco fica em
+  `mongodb://localhost:27017/postvision_demo`. A porta só é publicada no próprio computador.
+- Para trabalhar com nodemon e apenas o banco no Docker:
+  `docker compose up -d mongo`, ajuste `MONGODB_URI` no `.env` e rode `npm run dev`.
+  Se a API do Compose estiver ativa na mesma porta, pare-a primeiro com `docker compose stop api`.
+- `API_PORT` e `MONGO_PORT` mudam as portas no computador; dentro da rede Docker,
+  API e MongoDB continuam em 4000 e 27017. Ao mudar `API_PORT`, ajuste também
+  `PUBLIC_API_URL` e os clientes que acessam a API.
+- CORS recebe a origem pública do frontend em `FRONTEND_URL`, normalmente
+  `http://localhost:3000`.
+- O PostVision Files não está neste repositório. Cadastro, login, exercícios,
+  sessões, estatísticas e notificações funcionam sem ele. Upload e leitura de
+  fotos precisam do serviço, configurado por `DOCKER_FILES_API_URL` e `FILES_API_KEY`.
+  `host.docker.internal` aponta para a máquina hospedeira; dentro do container,
+  `localhost` aponta para o próprio container.
+- Os cálculos de calendário usam o fuso do processo. API e seed usam
+  `America/Sao_Paulo` no Compose.
+
+Este Compose entrega a etapa da API: **backend + banco**. O frontend permanece em
+seu repositório. Depois de receber seu próprio Dockerfile, ele poderá ser incluído
+neste arquivo com `build: ../postvision-web`, mantendo os dois clones lado a lado.
+O ambiente completo exigido pelo professor ficará pronto nessa etapa do web.
