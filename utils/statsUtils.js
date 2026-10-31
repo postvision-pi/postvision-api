@@ -94,17 +94,16 @@ export function getLastSessionDate(sessions) {
             : latest;
     });
 
+    const corretos = lastSession.report?.correctReps ?? 0;
+    const incorretos = lastSession.report?.incorrectReps ?? 0;
+    const total = corretos + incorretos;
+
     return {
         date: normalizeDate(lastSession.date),
-        corretos: lastSession.report?.correctReps ?? 0,
-        incorretos: lastSession.report?.incorrectReps ?? 0,
-        total: (lastSession.report?.correctReps ?? 0) + (lastSession.report?.incorrectReps ?? 0),
-        accuracy: lastSession.report
-            ? Math.round(
-                (lastSession.report.correctReps /
-                    (lastSession.report.correctReps + lastSession.report.incorrectReps)) * 100
-            )
-            : 0
+        corretos,
+        incorretos,
+        total,
+        accuracy: total > 0 ? Math.round((corretos / total) * 100) : 0
     };
 }
 

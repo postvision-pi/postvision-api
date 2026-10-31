@@ -575,3 +575,15 @@ npm run check      # Validação de sintaxe dos arquivos JavaScript
 
 Esses comandos não precisam de `.env`, MongoDB ou PostVision Files. A API continua em
 JavaScript: `check` não é uma checagem de tipos TypeScript nem uma compilação.
+
+## Testes unitários
+
+```bash
+npm test           # Executa uma vez (mesmo comando do CI)
+npm run test:watch # Repete os testes ao editar
+```
+
+Os testes usam Vitest e cobrem CPF, estatísticas (incluindo sessões com zero
+repetições), Bearer JWT, configuração, saúde e regras de cadastro/atualização.
+Consultas ao Mongoose são simuladas; a suíte não precisa de banco ou credenciais reais.
+As datas dos testes de estatísticas são controladas para evitar falhas conforme o dia.
