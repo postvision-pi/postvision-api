@@ -63,7 +63,14 @@ npm run dev
 npm start
 ```
 
-O servidor sobe em `http://localhost:4000` por padrão.
+O servidor sobe em `http://localhost:4000` por padrão, somente após conectar ao MongoDB.
+Se faltar `MONGODB_URI` ou `JWT_SECRET`, se a porta for inválida ou se a conexão falhar,
+a inicialização termina com código de erro. `Ctrl+C` encerra o servidor e a conexão.
+
+`GET /health` retorna HTTP 200 com `{"status":"ok","database":"connected"}` quando
+o banco está conectado; retorna HTTP 503 se a conexão cair. Essa checagem não consulta o serviço de fotos.
+
+`app.js` configura o Express sem abrir porta. `index.js` carrega o `.env`, valida o ambiente e inicia a API.
 
 ---
 

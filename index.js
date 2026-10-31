@@ -1,42 +1,46 @@
-import express from 'express';
+import 'dotenv/config';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import dns from 'dns';
-import cors from 'cors';
+import { createApp } from './app.js';
+import { getConfig } from './config/env.js';
 
-import userRouter from './routes/userRoutes.js';
-import exerciceRouter from './routes/exerciceRoutes.js';
-import sessionRouter from './routes/sessionRoutes.js';
-import notificationRouter from './routes/notificationRoutes.js';
+async function start() {
+    const config = getConfig();
+    await mongoose.connect(config.mongodbUri, { serverSelectionTimeoutMS: 10000 });
+    console.log('Banco conectado com sucesso');
 
-dotenv.config();
-dns.setServers(['1.1.1.1', '1.0.0.1']);
+    const app = createApp(config);
+    const server = await new Promise((resolve, reject) => {
+        const listener = app.listen(config.port, '0.0.0.0', () => resolve(listener));
+        listener.once('error', reject);
+    });
+    console.log(`Servidor rodando em http://localhost:${config.port}`);
 
-const app = express();
+    let stopping = false;
+    const shutdown = async () => {
+        if (stopping) return;
+        stopping = true;
+        const timeout = setTimeout(() => process.exit(1), 10000);
+        timeout.unref();
 
-// Permite requisições do front-end (ajuste a origin em produção)
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-}));
+        try {
+            await new Promise((resolve, reject) => {
+                server.close(err => err ? reject(err) : resolve());
+            });
+            await mongoose.disconnect();
+        } catch (err) {
+            console.error('Erro ao encerrar a API:', err.message);
+            process.exitCode = 1;
+        } finally {
+            clearTimeout(timeout);
+        }
+    };
 
-app.use(express.json());
+    process.once('SIGINT', shutdown);
+    process.once('SIGTERM', shutdown);
+}
 
-app.use('/', userRouter);
-app.use('/', exerciceRouter);
-app.use('/', sessionRouter);
-app.use('/', notificationRouter);
-
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Banco conectado com sucesso'))
-    .catch((err) => console.error('Erro ao conectar no banco:', err));
-
-const port = process.env.PORT || 4000;
-
-app.listen(port, (err) => {
-    if (err) {
-        console.error('Erro ao iniciar o servidor: ', err);
-    } else {
-        console.log(`Servidor rodando em http://localhost:${port}`);
-    }
+start().catch(async err => {
+    console.error('Erro ao iniciar a API:', err.message);
+    await mongoose.disconnect();
+    process.exitCode = 1;
 });
