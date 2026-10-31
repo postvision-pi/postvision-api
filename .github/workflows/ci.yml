@@ -32,7 +32,7 @@ jobs:
   docker:
     name: Build Docker e demonstração com MongoDB
     needs: quality
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     env:
       JWT_SECRET: segredo-descartavel-exclusivo-do-ci-postvision
