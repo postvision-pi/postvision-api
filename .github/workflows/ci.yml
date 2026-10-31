@@ -1,0 +1,64 @@
+name: CI da API
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, checagens e testes unitários
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Instalar dependências pelo lockfile
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Checagem de sintaxe JavaScript
+        run: npm run check
+      - name: Testes unitários
+        run: npm test
+
+  docker:
+    name: Build Docker e demonstração com MongoDB
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      JWT_SECRET: segredo-descartavel-exclusivo-do-ci-postvision
+      SEED_PASSWORD: PostVision123!
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Validar configuração do Compose
+        run: docker compose config --quiet
+      - name: Build da imagem de produção
+        run: npm run build
+      - name: Iniciar API e MongoDB e aguardar saúde
+        run: docker compose up -d --wait --wait-timeout 120
+      - name: Popular exemplos e repetir para verificar duplicidade
+        run: |
+          docker compose run --rm seed
+          docker compose run --rm seed
+      - name: Conferir demonstração pela API
+        run: npm run test:smoke
+      - name: Mostrar logs em caso de falha
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Encerrar o ambiente descartável do CI
+        if: always()
+        run: docker compose down -v --remove-orphans

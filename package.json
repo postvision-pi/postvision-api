@@ -12,7 +12,8 @@
     "check": "node scripts/check-syntax.js",
     "test:watch": "vitest",
     "seed": "node scripts/seed.js",
-    "build": "docker build -t postvision-api:local ."
+    "build": "docker build -t postvision-api:local .",
+    "test:smoke": "node scripts/smoke-api.js"
   },
   "repository": {
     "type": "git",

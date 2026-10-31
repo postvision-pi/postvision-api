@@ -554,7 +554,7 @@ As estatísticas retornadas em `GET /session/stats/:userId` são calculadas no s
 
 ## Coleção do Insomnia
 
-O arquivo [`postvision-api-07-05-2026.yaml`](./postvision-api-07-05-2026.yaml) é uma exportação de coleção do Insomnia (v5) com todas as rotas já configuradas.
+O arquivo [`postvision-api-25-08-2026.yaml`](./postvision-api-25-08-2026.yaml) é uma exportação de coleção do Insomnia (v5) com todas as rotas já configuradas.
 
 **Como usar:**
 1. No Insomnia, vá em `Application → Preferences → Data → Import Data` (ou arraste o arquivo pra dentro do Insomnia) e selecione o `.yaml`.
@@ -695,3 +695,37 @@ Este Compose entrega a etapa da API: **backend + banco**. O frontend permanece e
 seu repositório. Depois de receber seu próprio Dockerfile, ele poderá ser incluído
 neste arquivo com `build: ../postvision-web`, mantendo os dois clones lado a lado.
 O ambiente completo exigido pelo professor ficará pronto nessa etapa do web.
+
+## Integração contínua no GitHub
+
+`.github/workflows/ci.yml` roda em pushes, pull requests e execução manual:
+
+1. `npm ci` → lint → checagem de sintaxe → testes unitários.
+2. Se as validações passarem: build Docker → API e MongoDB saudáveis → seed duas
+   vezes → conferência HTTP da demonstração → encerramento do ambiente descartável.
+
+Para conferir o segundo fluxo localmente, depois de iniciar o Compose e popular
+os exemplos:
+
+```bash
+npm run test:smoke
+```
+
+Essa conferência exige os dados do seed: dois exercícios, oito sessões na conta Ana,
+quatro na conta Bruno e duas notificações por conta. Ela serve para a demonstração
+recém-populada; inserir/apagar exemplos manualmente pode alterar as contagens esperadas.
+Use `SMOKE_API_URL` se a API estiver em outra URL/porta. A senha vem de `SEED_PASSWORD`
+no ambiente ou `.env` (padrão `PostVision123!`). Não é parte de `npm test`.
+
+O CI usa MongoDB descartável e valores próprios de teste; não precisa de credenciais
+do Atlas, Secrets de produção ou PostVision Files. O volume apagado no final existe
+somente no runner do GitHub. A imagem é construída e executada, sem publicação
+em registry nem deploy automático.
+
+Depois do push, abra a aba **Actions** e acompanhe o workflow **CI da API**. Ambos
+os jobs devem passar. As configurações do repositório podem exigir esses checks
+para merge, se a equipe optar por proteger a branch principal.
+
+Referências das ferramentas: [Docker Compose](https://docs.docker.com/compose/),
+[Vitest](https://vitest.dev/guide/), [ESLint](https://eslint.org/docs/latest/use/configure/)
+e [GitHub Actions para Node.js](https://docs.github.com/en/actions/tutorials/build-and-test-code/nodejs).
