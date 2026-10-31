@@ -14,7 +14,7 @@ class SessionService {
             return await newSession.save();
         } catch (err) {
             console.log('Erro ao criar sessão: ', err);
-            throw new Error('Erro ao criar sessão');
+            throw new Error('Erro ao criar sessão', { cause: err });
         }
     }
 
@@ -24,7 +24,7 @@ class SessionService {
             return sessions;
         } catch (err) {
             console.log('Erro ao buscar sessões: ', err);
-            throw new Error('Erro ao buscar sessões');
+            throw new Error('Erro ao buscar sessões', { cause: err });
         }
     }
 

@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv/config';
 
-const secret = process.env.JWT_SECRET;
 
 /**
  * Middleware que valida o Bearer token no header Authorization.
@@ -21,7 +19,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, secret);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const userId = decoded.id_usuario?.toString() || decoded.id?.toString();
 

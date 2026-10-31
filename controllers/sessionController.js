@@ -1,4 +1,3 @@
-import { get } from 'mongoose';
 import SessionService from '../services/sessionService.js';
 
 
@@ -10,7 +9,7 @@ const CreateSession = async (req, res) => {
         // a um userId arbitrário vindo do corpo da requisição.
         const userId = req.userId;
 
-        const session = await SessionService.Create(
+        await SessionService.Create(
             userId,
             exerciseId,
             date,

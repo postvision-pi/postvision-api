@@ -564,3 +564,14 @@ O arquivo [`postvision-api-07-05-2026.yaml`](./postvision-api-07-05-2026.yaml) �
 5. Todas as rotas protegidas (marcadas com 🔒 nas seções acima) já vêm com o header `Authorization: Bearer {{ _.TOKEN }}` configurado — elas vão usar automaticamente o token que você colou no passo 4.
 
 > As requisições de sessão/notificação que usam `:userId` na URL (ex: *Get Sessions By User ID*) usam a variável `USER_ID` do ambiente — atualize-a com o `id_usuario` do usuário logado (deve ser o mesmo dono do `TOKEN`, já que as rotas agora checam isso no servidor).
+
+## Qualidade de código
+
+```bash
+npm run lint       # ESLint, sem avisos permitidos
+npm run lint:fix   # Correções automáticas disponíveis
+npm run check      # Validação de sintaxe dos arquivos JavaScript
+```
+
+Esses comandos não precisam de `.env`, MongoDB ou PostVision Files. A API continua em
+JavaScript: `check` não é uma checagem de tipos TypeScript nem uma compilação.

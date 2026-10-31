@@ -14,7 +14,7 @@ export function calculateStreak(sessions) {
     );
 
     let streak = 0;
-    let currentDate = new Date();
+    const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
 
     while (true) {

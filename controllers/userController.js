@@ -1,8 +1,6 @@
 import userService from '../services/userService.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv/config';
-const secret = process.env.JWT_SECRET;
 
 const createUser = async (req, res) => {
     try {
@@ -68,9 +66,9 @@ const getOne = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (email != undefined) {
+        if (email != null) {
             const user = await userService.getOne(email);
-            if (user != undefined) {
+            if (user != null) {
                 const isPasswordValid = await bcrypt.compare(password, user.password);
                 if (isPasswordValid) {
                     // Dados que queremos incluir no token
@@ -83,7 +81,7 @@ const loginUser = async (req, res) => {
                         cpf_usuario: user.cpf,
                         genero_usuario: user.gender,
                         telefone_usuario: user.phone,
-                    }, secret, { expiresIn: '2d'}, (err, token) => {
+                    }, process.env.JWT_SECRET, { expiresIn: '2d'}, (err, token) => {
                         if (err) {
                             console.log('Erro ao gerar token: ', err);
                             res.status(500).json({ error: 'Erro ao gerar token' });

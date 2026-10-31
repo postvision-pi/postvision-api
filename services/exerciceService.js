@@ -12,7 +12,7 @@ class ExerciceService {
             return await newExercice.save();
         } catch (err) {
             console.log('Erro ao criar exercício: ', err);
-            throw new Error('Erro ao criar exercício');
+            throw new Error('Erro ao criar exercício', { cause: err });
         }
     }
 
@@ -22,7 +22,7 @@ class ExerciceService {
             return exercicies;
         } catch (err) {
             console.log('Erro ao buscar exercícios: ', err);
-            throw new Error('Erro ao buscar exercícios');
+            throw new Error('Erro ao buscar exercícios', { cause: err });
         }
     }
 
@@ -32,7 +32,7 @@ class ExerciceService {
             console.log(`Exercício ${id} deletado com sucesso!`);
         } catch (err) {
             console.log('Erro ao deletar exercício: ', err);
-            throw new Error('Erro ao deletar exercício');
+            throw new Error('Erro ao deletar exercício', { cause: err });
         }
     }
 
@@ -47,7 +47,7 @@ class ExerciceService {
             console.log(`Exercício ${id} atualizado com sucesso!`);
         } catch (err) {
             console.log('Erro ao atualizar exercício: ', err);
-            throw new Error('Erro ao atualizar exercício');
+            throw new Error('Erro ao atualizar exercício', { cause: err });
         }
     }
 

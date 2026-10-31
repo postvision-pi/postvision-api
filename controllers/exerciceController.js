@@ -3,7 +3,7 @@ import exerciceService from '../services/exerciceService.js';
 const createExercice = async (req, res) => {
     try {
         const { name, description, videoUrl, muscleGroup } = req.body;
-        const newExercice = await exerciceService.Create(name, description, videoUrl, muscleGroup);
+        await exerciceService.Create(name, description, videoUrl, muscleGroup);
         res.status(201).json({ message: 'Exercício criado com sucesso!' });
     } catch (err) {
         console.log('Erro ao criar exercício: ', err);

@@ -2,7 +2,6 @@ import User from '../models/Users.js';
 import bcrypt from 'bcryptjs';
 import FormData from 'form-data';
 import axios from 'axios';
-import dotenv from 'dotenv/config';
 import { isValidCPF, onlyDigits } from '../utils/cpfValidator.js';
 
 class UserService {
@@ -55,7 +54,7 @@ class UserService {
             return user;
         } catch (err) {
             console.log('Erro ao buscar usuário: ', err);
-            throw new Error('Erro ao buscar usuário');
+            throw new Error('Erro ao buscar usuário', { cause: err });
         }
     }
 
@@ -69,7 +68,7 @@ class UserService {
             return user;
         } catch (err) {
             console.log('Erro ao buscar usuário: ', err);
-            throw new Error('Erro ao buscar usuário');
+            throw new Error('Erro ao buscar usuário', { cause: err });
         }
     }
 
@@ -94,7 +93,7 @@ class UserService {
                 }
             );
 
-            const response = await axios.post(
+            await axios.post(
                 `${process.env.FILES_API_URL}/internal/upload`,
                 form,
                 {
@@ -126,7 +125,7 @@ class UserService {
                 err.response?.data || err.message
             );
 
-            throw new Error('Erro ao enviar imagem de perfil');
+            throw new Error('Erro ao enviar imagem de perfil', { cause: err });
         }
     }
 
@@ -152,7 +151,7 @@ class UserService {
             // Se o PostVision Files não encontrou a imagem,
             // transformamos o erro em uma mensagem que o controller entende.
             if (err.response?.status === 404) {
-                throw new Error('Foto de perfil não encontrada');
+                throw new Error('Foto de perfil não encontrada', { cause: err });
             }
 
             console.log(
@@ -160,7 +159,7 @@ class UserService {
                 err.response?.data || err.message
             );
 
-            throw new Error('Erro ao buscar imagem de perfil');
+            throw new Error('Erro ao buscar imagem de perfil', { cause: err });
         }
     }
 
@@ -230,7 +229,7 @@ class UserService {
             return updatedUser;
         } catch (err) {
             console.log('Erro ao atualizar usuário: ', err);
-            throw err instanceof Error ? err : new Error('Erro ao atualizar usuário');
+            throw err instanceof Error ? err : new Error('Erro ao atualizar usuário', { cause: err });
         }
     }
 
@@ -240,7 +239,7 @@ class UserService {
             console.log(`Usuário ${id} deletado com sucesso!`);
         } catch (err) {
             console.log('Erro ao deletar usuário: ', err);
-            throw new Error('Erro ao deletar usuário');
+            throw new Error('Erro ao deletar usuário', { cause: err });
         }
     }
 
