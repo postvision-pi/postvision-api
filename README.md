@@ -623,3 +623,20 @@ de demonstração separado do Atlas usado pela aplicação publicada.
 Vídeos e landmarks dos exemplos têm caminhos ilustrativos `/demo/...`; o seed não
 cria esses arquivos nem realiza análise de postura. As fotos começam vazias.
 As notificações mantêm a expiração de 30 dias prevista no modelo.
+
+## Imagem Docker
+
+Com Docker Engine/Docker Desktop disponível:
+
+```bash
+npm run build
+# Equivalente: docker build -t postvision-api:local .
+```
+
+O build instala apenas dependências de produção. A imagem executa `node index.js`
+como usuário sem privilégios e inclui o comando de seed. `.env`, dependências locais,
+testes e histórico Git ficam fora da imagem. As variáveis são passadas ao executar
+o container, e a checagem de saúde consulta `/health`.
+
+A API é JavaScript: seu build é a imagem Docker, sem etapa artificial de compilação.
+A próxima seção explica a execução junto do MongoDB com Compose.

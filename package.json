@@ -11,7 +11,8 @@
     "lint:fix": "eslint . --fix --max-warnings=0",
     "check": "node scripts/check-syntax.js",
     "test:watch": "vitest",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "build": "docker build -t postvision-api:local ."
   },
   "repository": {
     "type": "git",
