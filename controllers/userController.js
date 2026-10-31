@@ -7,7 +7,11 @@ const secret = process.env.JWT_SECRET;
 const createUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, birthDate, cpf, gender, phone } = req.body;
-        
+
+        if (!firstName || !lastName || !email || !password || !birthDate || !cpf || !gender || !phone) {
+            return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+        }
+
         // Passamos o body inteiro para o service processar
         const user = await userService.createUser(
             firstName, 
@@ -35,8 +39,8 @@ const createUser = async (req, res) => {
             }
         });
     } catch (err) {
-        // Se for um erro de validação que nós lançamos no Service
-        if (err.message.includes("cadastrado")) {
+        // Erros de validação/negócio conhecidos (e-mail duplicado, CPF inválido, etc.)
+        if (err.message.includes('cadastrado') || err.message.includes('inválido')) {
             return res.status(400).json({ error: err.message });
         }
 
@@ -48,7 +52,7 @@ const createUser = async (req, res) => {
 const getOne = async (req, res) => {
     try {
         const email = req.params.email;
-        const user = await userService.getOne(email);
+        const user = await userService.getOneSafe(email);
         if (user) {
             res.status(200).json(user);
         } else {
@@ -107,11 +111,34 @@ const loginUser = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
+
+        // Um usuário só pode alterar o próprio cadastro.
+        if (req.userId !== id) {
+            return res.status(403).json({ error: 'Você não tem permissão para alterar este usuário.' });
+        }
+
         const { firstName, lastName, email, password, birthDate, cpf, gender, phone } = req.body;
-        await userService.Update(id, firstName, lastName, email, password, birthDate, cpf, gender, phone);
-        res.status(200).json({ message: 'Usuário atualizado com sucesso!' });
+        const updatedUser = await userService.Update(id, { firstName, lastName, email, password, birthDate, cpf, gender, phone });
+
+        res.status(200).json({
+            message: 'Usuário atualizado com sucesso!',
+            usuario: {
+                id_usuario: updatedUser._id,
+                nome_usuario: updatedUser.firstName,
+                sobrenome_usuario: updatedUser.lastName,
+                email_usuario: updatedUser.email,
+                data_nascimento_usuario: updatedUser.birthDate,
+                cpf_usuario: updatedUser.cpf,
+                genero_usuario: updatedUser.gender,
+                telefone_usuario: updatedUser.phone,
+            }
+        });
 
     } catch (err) {
+        if (err.message.includes('cadastrado') || err.message.includes('inválido') || err.message.includes('não encontrado')) {
+            return res.status(400).json({ error: err.message });
+        }
+
         console.log('Erro ao atualizar usuário: ', err);
         res.status(500).json({ error: 'Erro interno no servidor' });
     }
@@ -120,6 +147,12 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+
+        // Um usuário só pode apagar a própria conta.
+        if (req.userId !== id) {
+            return res.status(403).json({ error: 'Você não tem permissão para apagar este usuário.' });
+        }
+
         await userService.Delete(id);
         res.status(200).json({ message: 'Usuário deletado com sucesso!' });
     } catch (err) {

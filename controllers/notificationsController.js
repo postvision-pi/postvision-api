@@ -2,7 +2,14 @@ import NotificationService from "../services/notificationsService.js";
 
 const CreateNotification = async (req, res) => {
     try {
-        const { userId, type, title, message, data } = req.body;
+        const { type, title, message, data } = req.body;
+
+        // A notificação é sempre criada para o próprio usuário autenticado.
+        // (Se no futuro vocês precisarem que um serviço do sistema crie
+        // notificações para outros usuários — ex: lembretes automáticos,
+        // "streak_warning" via cron — essa rota vai precisar de uma
+        // autenticação separada por chave de serviço, não por JWT de usuário.)
+        const userId = req.userId;
 
         const notification = await NotificationService.Create(
             userId,
@@ -23,6 +30,10 @@ const GetNotifications = async (req, res) => {
     try {
         const userId = req.params.userId;
 
+        if (req.userId !== userId) {
+            return res.status(403).json({ error: "Você não tem permissão para ver essas notificações." });
+        }
+
         const notifications = await NotificationService.GetByUserId(userId);
 
         res.status(200).json(notifications);
@@ -35,6 +46,10 @@ const GetNotifications = async (req, res) => {
 const GetUnreadNotifications = async (req, res) => {
     try {
         const userId = req.params.userId;
+
+        if (req.userId !== userId) {
+            return res.status(403).json({ error: "Você não tem permissão para ver essas notificações." });
+        }
 
         const notifications = await NotificationService.GetUnreadByUserId(userId);
 
@@ -49,6 +64,14 @@ const MarkAsRead = async (req, res) => {
     try {
         const { id } = req.params;
 
+        const existing = await NotificationService.GetById(id);
+        if (!existing) {
+            return res.status(404).json({ error: "Notificação não encontrada" });
+        }
+        if (existing.userId.toString() !== req.userId) {
+            return res.status(403).json({ error: "Você não tem permissão para alterar esta notificação." });
+        }
+
         const notification = await NotificationService.MarkAsRead(id);
 
         res.status(200).json(notification);
@@ -62,6 +85,10 @@ const MarkAllAsRead = async (req, res) => {
     try {
         const userId = req.params.userId;
 
+        if (req.userId !== userId) {
+            return res.status(403).json({ error: "Você não tem permissão para alterar essas notificações." });
+        }
+
         await NotificationService.MarkAllAsRead(userId);
 
         res.status(200).json({ message: "Todas notificações marcadas como lidas" });
@@ -74,6 +101,14 @@ const MarkAllAsRead = async (req, res) => {
 const DeleteNotification = async (req, res) => {
     try {
         const { id } = req.params;
+
+        const existing = await NotificationService.GetById(id);
+        if (!existing) {
+            return res.status(404).json({ error: "Notificação não encontrada" });
+        }
+        if (existing.userId.toString() !== req.userId) {
+            return res.status(403).json({ error: "Você não tem permissão para apagar esta notificação." });
+        }
 
         await NotificationService.Delete(id);
 

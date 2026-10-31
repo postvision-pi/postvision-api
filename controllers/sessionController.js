@@ -4,7 +4,11 @@ import SessionService from '../services/sessionService.js';
 
 const CreateSession = async (req, res) => {
     try {
-        const { userId, exerciseId, date, durationInSeconds, report, landmarksPath } = req.body;
+        const { exerciseId, date, durationInSeconds, report, landmarksPath } = req.body;
+
+        // A sessão criada pertence sempre ao usuário autenticado, nunca
+        // a um userId arbitrário vindo do corpo da requisição.
+        const userId = req.userId;
 
         const session = await SessionService.Create(
             userId,
@@ -24,6 +28,12 @@ const CreateSession = async (req, res) => {
 const GetSessionsByUserId = async (req, res) => {
     try {
         const userId = req.params.userId;
+
+        // Um usuário só pode ver as próprias sessões.
+        if (req.userId !== userId) {
+            return res.status(403).json({ error: 'Você não tem permissão para ver essas sessões.' });
+        }
+
         const sessions = await SessionService.GetAllByUserId(userId);
         res.status(200).json(sessions);
     } catch (err) {
@@ -43,6 +53,11 @@ import {
 const GetStats = async (req, res) => {
     try {
         const userId = req.params.userId;
+
+        // Um usuário só pode ver as próprias estatísticas.
+        if (req.userId !== userId) {
+            return res.status(403).json({ error: 'Você não tem permissão para ver essas estatísticas.' });
+        }
 
         const sessions = await SessionService.GetAllByUserId(userId);
 

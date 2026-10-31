@@ -60,7 +60,7 @@ collection:
           created: 1773931516367
           modified: 1776177345736
           isPrivate: false
-          description: ""
+          description: "Copie o \"token\" da resposta e cole na variável de ambiente TOKEN — as outras rotas protegidas usam {{ _.TOKEN }} no header Authorization."
           sortKey: -1773894471235
         method: POST
         body:
@@ -92,7 +92,7 @@ collection:
           created: 1773942062622
           modified: 1776177334291
           isPrivate: false
-          description: ""
+          description: "Requer login (Authorization: Bearer). Rode Login User antes e cole o token na variável TOKEN."
           sortKey: -1773942062622
         method: GET
         body:
@@ -101,6 +101,8 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -120,7 +122,7 @@ collection:
           created: 1773942184672
           modified: 1776177327320
           isPrivate: false
-          description: ""
+          description: "Requer login. Só funciona no próprio usuário: o :id da URL precisa ser igual ao id do TOKEN usado. Aceita payload parcial (só os campos que quiser alterar)."
           sortKey: -1773942184672
         method: PUT
         body:
@@ -138,6 +140,8 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -157,10 +161,12 @@ collection:
           created: 1773942419043
           modified: 1776177312406
           isPrivate: false
-          description: ""
+          description: "Requer login. Só funciona no próprio usuário: o :id da URL precisa ser igual ao id do TOKEN usado."
           sortKey: -1773942419043
         method: DELETE
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -188,7 +194,7 @@ collection:
           created: 1773939078821
           modified: 1776177305669
           isPrivate: false
-          description: ""
+          description: "Requer login (Authorization: Bearer)."
           sortKey: -1773939078821
         method: POST
         body:
@@ -203,6 +209,8 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -245,10 +253,12 @@ collection:
           created: 1773950014582
           modified: 1776177294530
           isPrivate: false
-          description: ""
+          description: "Requer login (Authorization: Bearer)."
           sortKey: -1773950014582
         method: DELETE
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -268,7 +278,7 @@ collection:
           created: 1773960692717
           modified: 1776177286928
           isPrivate: false
-          description: ""
+          description: "Requer login (Authorization: Bearer)."
           sortKey: -1773960692717
         method: PUT
         body:
@@ -283,6 +293,8 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -310,14 +322,13 @@ collection:
           created: 1773965536869
           modified: 1776177278890
           isPrivate: false
-          description: ""
+          description: "Requer login. A sessão é criada para o dono do TOKEN — não é mais preciso (nem possível) informar userId no corpo."
           sortKey: -1773965536869
         method: POST
         body:
           mimeType: application/json
           text: |-
             {
-              "userId": "69d27e92d84a4fce84e795a0",
               "exerciseId": "69bc546f821571e0c90bc572",
               "date": "2026-04-14T19:20:00.000Z",
               "durationInSeconds": 312,
@@ -334,6 +345,8 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -353,10 +366,12 @@ collection:
           created: 1773966847682
           modified: 1776177433560
           isPrivate: false
-          description: ""
+          description: "Requer login. O :userId da URL precisa ser igual ao id do TOKEN usado."
           sortKey: -1773966847682
         method: GET
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -376,10 +391,12 @@ collection:
           created: 1775586622582
           modified: 1776177440132
           isPrivate: false
-          description: ""
+          description: "Requer login. O :userId da URL precisa ser igual ao id do TOKEN usado."
           sortKey: -1773966192275.5
         method: GET
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.4.0
             description: ""
@@ -407,14 +424,13 @@ collection:
           created: 1776171933224
           modified: 1776185209729
           isPrivate: false
-          description: ""
+          description: "Requer login. A notificação é criada para o dono do TOKEN — não é mais preciso (nem possível) informar userId no corpo."
           sortKey: -1776171933224
         method: POST
         body:
           mimeType: application/json
           text: |-
             {
-              "userId": "69d27e92d84a4fce84e795a0",
               "type": "feedback",
               "title": "Parabens pelas ultimas sessoes!",
               "message": "Voce tem ido muito bem nas ultimas sessões",
@@ -424,6 +440,8 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.5.0
             description: ""
@@ -443,10 +461,12 @@ collection:
           created: 1776174984860
           modified: 1776177386053
           isPrivate: false
-          description: ""
+          description: "Requer login. O :userId da URL precisa ser igual ao id do TOKEN usado."
           sortKey: -1776174984860
         method: GET
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.5.0
             description: ""
@@ -466,10 +486,12 @@ collection:
           created: 1776176160130
           modified: 1776177399914
           isPrivate: false
-          description: ""
+          description: "Requer login. O :userId da URL precisa ser igual ao id do TOKEN usado."
           sortKey: -1776176160130
         method: GET
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.5.0
             description: ""
@@ -489,10 +511,12 @@ collection:
           created: 1776176508426
           modified: 1776177240460
           isPrivate: false
-          description: ""
+          description: "Requer login. Só marca como lida se a notificação pertencer ao dono do TOKEN."
           sortKey: -1776176508426
         method: PUT
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.5.0
             description: ""
@@ -512,10 +536,12 @@ collection:
           created: 1776176584892
           modified: 1776177537486
           isPrivate: false
-          description: ""
+          description: "Requer login. O :userId da URL precisa ser igual ao id do TOKEN usado."
           sortKey: -1776176584892
         method: PUT
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.5.0
             description: ""
@@ -535,10 +561,12 @@ collection:
           created: 1776176636060
           modified: 1776177190121
           isPrivate: false
-          description: ""
+          description: "Requer login. Só apaga se a notificação pertencer ao dono do TOKEN."
           sortKey: -1776176636060
         method: DELETE
         headers:
+          - name: Authorization
+            value: "Bearer {{ _.TOKEN }}"
           - name: User-Agent
             value: insomnia/12.5.0
             description: ""
@@ -567,3 +595,6 @@ environments:
   data:
     BASE_URL: http://localhost:4000
     USER_ID: 69d27e92d84a4fce84e795a0
+    # Cole aqui o token retornado por "Login User". Todas as rotas
+    # protegidas usam Authorization: Bearer {{ _.TOKEN }}.
+    TOKEN: ""
