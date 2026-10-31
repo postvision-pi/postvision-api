@@ -80,7 +80,7 @@ Crie um arquivo `.env` na raiz do projeto com base no `.env.example`:
 
 | Variável        | Descrição                                             | Exemplo                                    |
 |-----------------|-------------------------------------------------------|--------------------------------------------|
-| `MONGODB_URI`   | String de conexão com o MongoDB Atlas                 | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
+| `MONGODB_URI`   | String de conexão com o MongoDB (local ou Atlas)                 | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
 | `JWT_SECRET`    | Segredo para assinar os tokens JWT                    | `minha_chave_secreta_longa`               |
 | `PORT`          | Porta em que a API irá rodar                          | `4000`                                     |
 | `FRONTEND_URL`  | Origem permitida pelo CORS                            | `http://localhost:3000`                   |
@@ -587,3 +587,39 @@ Os testes usam Vitest e cobrem CPF, estatísticas (incluindo sessões com zero
 repetições), Bearer JWT, configuração, saúde e regras de cadastro/atualização.
 Consultas ao Mongoose são simuladas; a suíte não precisa de banco ou credenciais reais.
 As datas dos testes de estatísticas são controladas para evitar falhas conforme o dia.
+
+## Banco de demonstração e seed
+
+O seed insere **2 usuários, 2 exercícios, 12 sessões e 4 notificações** em
+`postvision_demo`. No primeiro uso, as sessões ficam distribuídas pelos últimos 21 dias.
+
+Com o MongoDB local acessível, configure no `.env`:
+
+```dotenv
+MONGODB_URI=mongodb://localhost:27017/postvision_demo
+SEED_ENABLED=true
+SEED_PASSWORD=PostVision123!
+```
+
+```bash
+npm run seed
+```
+
+A primeira execução informa `inserted` igual a 2, 2, 12 e 4. Uma segunda execução
+informa zero inserções em todos os grupos. Os IDs são fixos e o seed usa `$setOnInsert`:
+não apaga registros, não duplica os exemplos e preserva alterações feitas nas contas.
+Se mudar `SEED_PASSWORD` depois, a senha de uma conta já criada permanece a anterior.
+Se a execução for interrompida, basta repetir o comando.
+
+| E-mail | Senha inicial padrão |
+|---|---|
+| `demo@postvision.local` | `PostVision123!` |
+| `bruno@postvision.local` | `PostVision123!` |
+
+As senhas são gravadas com hash bcrypt. O seed recusa `NODE_ENV=production`, exige
+`SEED_ENABLED=true` e só aceita o banco chamado `postvision_demo`. Configure o ambiente
+de demonstração separado do Atlas usado pela aplicação publicada.
+
+Vídeos e landmarks dos exemplos têm caminhos ilustrativos `/demo/...`; o seed não
+cria esses arquivos nem realiza análise de postura. As fotos começam vazias.
+As notificações mantêm a expiração de 30 dias prevista no modelo.
